@@ -4,6 +4,15 @@ public class MyCurrency {
     private double conversionFactor;
     private double averageExchangeRate;
 
+    MyCurrency(){}
+
+    MyCurrency(String currencyName, String currencyCode, double conversionFactor, double averageExchangeRate) {
+        this.currencyName = currencyName;
+        this.currencyCode = currencyCode;
+        this.conversionFactor = conversionFactor;
+        this.averageExchangeRate = averageExchangeRate;
+    }
+
     public void setCurrencyName(String currencyName) {
         this.currencyName = currencyName;
     }

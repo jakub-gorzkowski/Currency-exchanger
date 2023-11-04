@@ -4,32 +4,46 @@ import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.List;
 
-public class CurrencyExchangerGUI extends JFrame {
+public class CurrencyExchanger extends JFrame {
     JLabel resultField;
     JButton button;
     JTextField textField;
     JComboBox<MyCurrency> currency1;
     JComboBox<MyCurrency> currency2;
 
-    private CurrencyExchangerGUI() throws IOException, ParserConfigurationException, SAXException {
+    private CurrencyExchanger() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         Exchange exchange = Exchange.getInstance();
         DataProvider dataProvider = DataProvider.getInstance();
         dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
 
         XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
-        xmlDataFormatter.setByte(dataProvider.getData());
+
+        for (int attempts = 1; true; attempts++) {
+            try {
+                xmlDataFormatter.setByte(dataProvider.getData());
+                break;
+            } catch (UnknownHostException e) {
+                System.out.print("[" + attempts + "] " + "Reconnection attempt");
+                for (int i = 0; i < 3; i++) {
+                    Thread.sleep(500);
+                    System.out.print(".");
+                }
+                Thread.sleep(3500);
+                System.out.println();
+            }
+            if (attempts == 3) {
+                System.out.println();
+                System.exit(1);
+            }
+        }
 
         CurrencyCollection collection = xmlDataFormatter.getCollection();
 
-        MyCurrency currency = new MyCurrency();
-        currency.setCurrencyCode("PLN");
-        currency.setCurrencyName("złoty polski");
-        currency.setAverageExchangeRate(1);
-        currency.setConversionFactor(1);
-        collection.addItem(currency);
+        collection.addItem(new MyCurrency("złoty polski", "PLN", 1, 1));
 
         List<MyCurrency> currencies = collection.getCurrencies();
 
@@ -67,17 +81,16 @@ public class CurrencyExchangerGUI extends JFrame {
                 exchange.setCurrency1((MyCurrency) currency1.getSelectedItem());
             }
         });
+        currency1.setSelectedItem(currencies.get(0));
 
         currency2.addActionListener(e -> {
             if (e.getSource() == currency2) {
                 exchange.setCurrency2((MyCurrency) currency2.getSelectedItem());
             }
         });
-
-        currency1.setSelectedItem(currencies.get(0));
         currency2.setSelectedItem(currencies.get(0));
 
-        button = new JButton("Exchange");
+        button = new JButton("Oblicz");
         button.addActionListener(e -> {
             if(e.getSource() == button) {
                 try {
@@ -97,13 +110,13 @@ public class CurrencyExchangerGUI extends JFrame {
         this.pack();
     }
 
-    private static CurrencyExchangerGUI currencyExchangerGUI = null;
+    private static CurrencyExchanger currencyExchanger = null;
 
-    public static CurrencyExchangerGUI getInstance() throws IOException, ParserConfigurationException, SAXException {
-        if (currencyExchangerGUI == null) {
-            currencyExchangerGUI = new CurrencyExchangerGUI();
+    public static CurrencyExchanger getInstance() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
+        if (currencyExchanger == null) {
+            currencyExchanger = new CurrencyExchanger();
         }
 
-        return currencyExchangerGUI;
+        return currencyExchanger;
     }
 }

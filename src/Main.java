@@ -4,7 +4,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
-        CurrencyExchangerGUI.getInstance();
+    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
+        CurrencyExchanger.getInstance();
     }
 }
