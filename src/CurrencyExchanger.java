@@ -10,51 +10,27 @@ import java.text.DecimalFormat;
 public class CurrencyExchanger extends JFrame implements UserInterface {
     private final JLabel resultField;
     private final JButton exchangeButton;
-    private final JTextField textField;
+    private final JTextField currencyInput;
     private final JComboBox<MyCurrency> currency1;
     private final JComboBox<MyCurrency> currency2;
-    private Exchange exchange = Exchange.getInstance();
-    private XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
-    private CurrencyCollection collection;
+    private final Exchange exchange = Exchange.getInstance();
+    private static final XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
+    private static CurrencyCollection collection;
 
-    private CurrencyExchanger() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
-        DataProvider dataProvider = DataProvider.getInstance();
-        dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
+    private CurrencyExchanger() {
 
-        for (int attempts = 1; true; attempts++) {
-            try {
-                xmlDataFormatter.setByte(dataProvider.getData());
-                break;
-            } catch (UnknownHostException e) {
-                System.out.print("[" + attempts + "] " + "Reconnection attempt");
-                for (int i = 0; i < 3; i++) {
-                    Thread.sleep(500);
-                    System.out.print(".");
-                }
-                Thread.sleep(3500);
-                System.out.println();
-            }
-            if (attempts == 3) {
-                System.out.println();
-                System.exit(1);
-            }
-        }
-
-        collection = xmlDataFormatter.getCollection();
-
-        // GUI
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("NBP currency exchanger");
         this.setResizable(false);
         this.setLayout(new FlowLayout());
 
-        resultField = new JLabel(" ");
+        resultField = new JLabel("");
         resultField.setPreferredSize(new Dimension(100, 25));
 
-        textField = new JTextField();
-        textField.setPreferredSize(new Dimension(100, 25));
-        this.add(textField);
+        currencyInput = new JTextField();
+        currencyInput.setPreferredSize(new Dimension(100, 25));
+        this.add(currencyInput);
 
         DefaultComboBoxModel<MyCurrency> currencyList1 = new DefaultComboBoxModel<>();
         currency1 = new JComboBox<>(currencyList1);
@@ -75,6 +51,34 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
         exchangeButton.setBounds(160, 100, 100, 25);
         this.add(exchangeButton);
         this.pack();
+    }
+
+    public static void loadData() throws InterruptedException, IOException, ParserConfigurationException, SAXException {
+        DataProvider dataProvider = DataProvider.getInstance();
+        dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
+
+        for (int attempts = 1; true; attempts++) {
+            try {
+                xmlDataFormatter.setByte(dataProvider.getData());
+                break;
+            } catch (UnknownHostException e) {
+                System.out.print("[" + attempts + "] " + "Reconnection attempt");
+                for (int i = 0; i < 3; i++) {
+                    Thread.sleep(500);
+                    System.out.print(".");
+                }
+                Thread.sleep(3500);
+                System.out.println();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (attempts == 3) {
+                System.out.println();
+                System.exit(1);
+            }
+        }
+
+        collection = xmlDataFormatter.getCollection();
     }
 
     public void pickCurrency() {
@@ -98,7 +102,7 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
             if(e.getSource() == exchangeButton) {
                 try {
                     DecimalFormat decimalFormat = new DecimalFormat("#.##");
-                    double amount = Double.parseDouble(textField.getText());
+                    double amount = Double.parseDouble(currencyInput.getText());
 
                     if (amount > 0) {
                         exchange.setAmount(amount);
@@ -120,7 +124,7 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
 
     private static CurrencyExchanger currencyExchanger = null;
 
-    public static CurrencyExchanger getInstance() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
+    public static CurrencyExchanger getInstance() {
         if (currencyExchanger == null) {
             currencyExchanger = new CurrencyExchanger();
         }
