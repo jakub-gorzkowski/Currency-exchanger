@@ -15,9 +15,10 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
     private final JComboBox<MyCurrency> currency2;
     private final Exchange exchange = Exchange.getInstance();
     private static final XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
-    private static CurrencyCollection collection;
+    private static final DataProvider dataProvider = DataProvider.getInstance();
+    private static CurrencyExchanger currencyExchanger = null;
 
-    private CurrencyExchanger() {
+    private CurrencyExchanger() throws IOException, ParserConfigurationException, SAXException {
 
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,7 +43,7 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
         currency2 = new JComboBox<>(currencyList2);
         this.add(currency2);
 
-        for (MyCurrency c: collection.getCurrencies()) {
+        for (MyCurrency c: xmlDataFormatter.getCollection().getCurrencies()) {
             currencyList1.addElement(c);
             currencyList2.addElement(c);
         }
@@ -53,8 +54,7 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
         this.pack();
     }
 
-    public static void loadData() throws InterruptedException, IOException, ParserConfigurationException, SAXException {
-        DataProvider dataProvider = DataProvider.getInstance();
+    public static void loadData() throws InterruptedException {
         dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
 
         for (int attempts = 1; true; attempts++) {
@@ -77,24 +77,22 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
                 System.exit(1);
             }
         }
-
-        collection = xmlDataFormatter.getCollection();
     }
 
-    public void pickCurrency() {
+    public void pickCurrency() throws IOException, ParserConfigurationException, SAXException {
         currency1.addActionListener(e -> {
             if (e.getSource() == currency1) {
                 exchange.setCurrency1((MyCurrency) currency1.getSelectedItem());
             }
         });
-        currency1.setSelectedItem(collection.getCurrencies().get(0));
+        currency1.setSelectedItem(xmlDataFormatter.getCollection().getCurrencies().get(0));
 
         currency2.addActionListener(e -> {
             if (e.getSource() == currency2) {
                 exchange.setCurrency2((MyCurrency) currency2.getSelectedItem());
             }
         });
-        currency2.setSelectedItem(collection.getCurrencies().get(0));
+        currency2.setSelectedItem(xmlDataFormatter.getCollection().getCurrencies().get(0));
     }
 
     public void exchange() {
@@ -122,9 +120,7 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
         this.pack();
     }
 
-    private static CurrencyExchanger currencyExchanger = null;
-
-    public static CurrencyExchanger getInstance() {
+    public static CurrencyExchanger getInstance() throws IOException, ParserConfigurationException, SAXException {
         if (currencyExchanger == null) {
             currencyExchanger = new CurrencyExchanger();
         }

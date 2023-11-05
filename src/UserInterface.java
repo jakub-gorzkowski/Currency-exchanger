@@ -5,6 +5,6 @@ import java.io.IOException;
 
 public interface UserInterface {
     static void loadData() throws InterruptedException, IOException, ParserConfigurationException, SAXException {}
-    void pickCurrency();
+    void pickCurrency() throws IOException, ParserConfigurationException, SAXException;
     void exchange();
 }
