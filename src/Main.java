@@ -5,8 +5,17 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
-        CurrencyExchanger.loadData();
-        CurrencyExchanger currencyExchanger = CurrencyExchanger.getInstance();
+
+        Exchange exchange = Exchange.getInstance();
+        XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
+        DataProvider dataProvider = DataProvider.getInstance();
+        dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
+
+        ConnectionController connectionController = ConnectionController.getInstance(dataProvider, xmlDataFormatter);
+        connectionController.loadData();
+
+        CurrencyExchanger currencyExchanger = CurrencyExchanger.getInstance(exchange, xmlDataFormatter);
+        currencyExchanger.generateInterface();
         currencyExchanger.pickCurrency();
         currencyExchanger.exchange();
     }
