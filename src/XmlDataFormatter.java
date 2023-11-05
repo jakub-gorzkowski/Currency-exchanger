@@ -42,6 +42,8 @@ class XmlDataFormatter {
 
         NodeList pozycje = document.getElementsByTagName("pozycja");
 
+        currencyCollection.addItem(new MyCurrency("złoty polski", "PLN", 1, 1));
+
         for (int i = 0; i < pozycje.getLength(); i++) {
             Element pozycjaElement = (Element) pozycje.item(i);
 
@@ -60,6 +62,7 @@ class XmlDataFormatter {
 
             currencyCollection.addItem(currency);
         }
+
         return currencyCollection;
     }
 }

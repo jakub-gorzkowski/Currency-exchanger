@@ -6,21 +6,20 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.util.List;
 
-public class CurrencyExchanger extends JFrame {
-    JLabel resultField;
-    JButton button;
-    JTextField textField;
-    JComboBox<MyCurrency> currency1;
-    JComboBox<MyCurrency> currency2;
+public class CurrencyExchanger extends JFrame implements UserInterface {
+    private final JLabel resultField;
+    private final JButton exchangeButton;
+    private final JTextField textField;
+    private final JComboBox<MyCurrency> currency1;
+    private final JComboBox<MyCurrency> currency2;
+    Exchange exchange = Exchange.getInstance();
+    XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
+    CurrencyCollection collection;
 
     private CurrencyExchanger() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
-        Exchange exchange = Exchange.getInstance();
         DataProvider dataProvider = DataProvider.getInstance();
         dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
-
-        XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
 
         for (int attempts = 1; true; attempts++) {
             try {
@@ -41,16 +40,12 @@ public class CurrencyExchanger extends JFrame {
             }
         }
 
-        CurrencyCollection collection = xmlDataFormatter.getCollection();
-
-        collection.addItem(new MyCurrency("złoty polski", "PLN", 1, 1));
-
-        List<MyCurrency> currencies = collection.getCurrencies();
+        collection = xmlDataFormatter.getCollection();
 
         // GUI
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Kantor wymiany walut NBP");
+        this.setTitle("NBP currency exchanger");
         this.setResizable(false);
         this.setLayout(new FlowLayout());
 
@@ -71,42 +66,55 @@ public class CurrencyExchanger extends JFrame {
         currency2 = new JComboBox<>(currencyList2);
         this.add(currency2);
 
-        for (MyCurrency c: currencies) {
+        for (MyCurrency c: collection.getCurrencies()) {
             currencyList1.addElement(c);
             currencyList2.addElement(c);
         }
 
+        exchangeButton = new JButton("Exchange");
+        exchangeButton.setBounds(160, 100, 100, 25);
+        this.add(exchangeButton);
+        this.pack();
+    }
+
+    public void pickCurrency() {
         currency1.addActionListener(e -> {
             if (e.getSource() == currency1) {
                 exchange.setCurrency1((MyCurrency) currency1.getSelectedItem());
             }
         });
-        currency1.setSelectedItem(currencies.get(0));
+        currency1.setSelectedItem(collection.getCurrencies().get(0));
 
         currency2.addActionListener(e -> {
             if (e.getSource() == currency2) {
                 exchange.setCurrency2((MyCurrency) currency2.getSelectedItem());
             }
         });
-        currency2.setSelectedItem(currencies.get(0));
+        currency2.setSelectedItem(collection.getCurrencies().get(0));
+    }
 
-        button = new JButton("Oblicz");
-        button.addActionListener(e -> {
-            if(e.getSource() == button) {
+    public void exchange() {
+        exchangeButton.addActionListener(e -> {
+            if(e.getSource() == exchangeButton) {
                 try {
                     DecimalFormat decimalFormat = new DecimalFormat("#.##");
                     double amount = Double.parseDouble(textField.getText());
-                    exchange.setAmount(amount);
-                    resultField.setText(String.valueOf(decimalFormat.format(exchange.result())));
-                } catch (NumberFormatException exception) {
-                    exchange.setAmount(0);
-                    resultField.setText(("Niepoprawne dane"));
-                }
 
+                    if (amount > 0) {
+                        exchange.setAmount(amount);
+                        resultField.setText(String.valueOf(decimalFormat.format(exchange.result())));
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                } catch (NumberFormatException exception) {
+                    resultField.setText(("Illegal data type"));
+                } catch (IllegalArgumentException exception) {
+                    resultField.setText(("Invalid amount of currency"));
+                }
             }
         });
-        button.setBounds(160, 100, 100, 25);
-        this.add(button);
+        exchangeButton.setBounds(160, 100, 100, 25);
+        this.add(exchangeButton);
         this.pack();
     }
 

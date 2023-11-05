@@ -5,6 +5,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
-        CurrencyExchanger.getInstance();
+        CurrencyExchanger currencyExchanger = CurrencyExchanger.getInstance();
+        currencyExchanger.pickCurrency();
+        currencyExchanger.exchange();
     }
 }
