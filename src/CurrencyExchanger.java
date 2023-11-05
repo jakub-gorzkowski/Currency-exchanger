@@ -13,9 +13,9 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
     private final JTextField textField;
     private final JComboBox<MyCurrency> currency1;
     private final JComboBox<MyCurrency> currency2;
-    Exchange exchange = Exchange.getInstance();
-    XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
-    CurrencyCollection collection;
+    private Exchange exchange = Exchange.getInstance();
+    private XmlDataFormatter xmlDataFormatter = XmlDataFormatter.getInstance();
+    private CurrencyCollection collection;
 
     private CurrencyExchanger() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         DataProvider dataProvider = DataProvider.getInstance();
