@@ -3,16 +3,16 @@ import java.net.UnknownHostException;
 
 public class ConnectionController {
 
-    private static DataProvider dataProvider;
-    private static XmlDataFormatter xmlDataFormatter;
+    private DataProvider dataProvider;
+    private XmlDataFormatter xmlDataFormatter;
 
     private static ConnectionController connectionController = null;
 
     ConnectionController(DataProvider dataProvider, XmlDataFormatter xmlDataFormatter) {
-        ConnectionController.dataProvider = dataProvider;
-        ConnectionController.xmlDataFormatter = xmlDataFormatter;
+        this.dataProvider = dataProvider;
+        this.xmlDataFormatter = xmlDataFormatter;
     }
-    public void loadData() throws InterruptedException {
+    public void checkAvailability() throws InterruptedException {
         for (int attempts = 1; true; attempts++) {
             try {
                 xmlDataFormatter.setByte(dataProvider.getData());

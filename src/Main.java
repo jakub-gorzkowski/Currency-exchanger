@@ -12,9 +12,9 @@ public class Main {
         dataProvider.setUrl("https://www.nbp.pl/kursy/xml/lasta.xml");
 
         ConnectionController connectionController = ConnectionController.getInstance(dataProvider, xmlDataFormatter);
-        connectionController.loadData();
+        connectionController.checkAvailability();
 
-        CurrencyExchanger currencyExchanger = CurrencyExchanger.getInstance(exchange, xmlDataFormatter);
+        CurrencyExchangerGUI currencyExchanger = CurrencyExchangerGUI.getInstance(exchange, xmlDataFormatter);
         currencyExchanger.generateInterface();
         currencyExchanger.pickCurrency();
         currencyExchanger.exchange();

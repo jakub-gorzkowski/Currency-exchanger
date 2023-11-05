@@ -1,13 +1,12 @@
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-public class CurrencyExchanger extends JFrame implements UserInterface {
+public class CurrencyExchangerGUI extends JFrame implements UserInterface {
     private JPanel IOBox;
     private JPanel amountBox;
     private JPanel currenciesList;
@@ -16,13 +15,13 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
     private JTextField currencyInput;
     private JComboBox<MyCurrency> currency1;
     private JComboBox<MyCurrency> currency2;
-    private static Exchange exchange;
-    private static XmlDataFormatter xmlDataFormatter;
-    private static CurrencyExchanger currencyExchanger = null;
+    private Exchange exchange;
+    private XmlDataFormatter xmlDataFormatter;
+    private static CurrencyExchangerGUI currencyExchanger = null;
 
-    private CurrencyExchanger(Exchange exchange, XmlDataFormatter xmlDataFormatter) {
-        CurrencyExchanger.exchange = exchange;
-        CurrencyExchanger.xmlDataFormatter = xmlDataFormatter;
+    private CurrencyExchangerGUI(Exchange exchange, XmlDataFormatter xmlDataFormatter) {
+        this.exchange = exchange;
+        this.xmlDataFormatter = xmlDataFormatter;
     }
 
     public void generateInterface() throws IOException, ParserConfigurationException, SAXException {
@@ -113,9 +112,9 @@ public class CurrencyExchanger extends JFrame implements UserInterface {
         });
     }
 
-    public static CurrencyExchanger getInstance(Exchange exchange, XmlDataFormatter xmlDataFormatter) {
+    public static CurrencyExchangerGUI getInstance(Exchange exchange, XmlDataFormatter xmlDataFormatter) {
         if (currencyExchanger == null) {
-            currencyExchanger = new CurrencyExchanger(exchange, xmlDataFormatter);
+            currencyExchanger = new CurrencyExchangerGUI(exchange, xmlDataFormatter);
         }
 
         return currencyExchanger;
